@@ -11,14 +11,7 @@ export default function Home() {
         <Link className="rounded-xl border px-4 py-2 hover:shadow-sm transition" href="/posts">
           Go to Posts →
         </Link>
-        <a
-          className="rounded-xl border px-4 py-2 hover:shadow-sm transition"
-          href="http://localhost:4000/health"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Backend health
-        </a>
+     
       </div>
     </main>
   );

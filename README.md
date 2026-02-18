@@ -31,6 +31,5 @@ Frontend runs on: http://localhost:3000
 - GET http://localhost:4000/api/posts/:id/comments
 
 ## Notes
-The frontend calls the backend using `NEXT_PUBLIC_API_BASE`.
-If not set, it defaults to `http://localhost:4000`.
+
 # qualitara

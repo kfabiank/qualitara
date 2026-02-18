@@ -1,0 +1,15 @@
+.post-card {
+  @apply block rounded-xl border border-brand-200 bg-surface-50 p-4 transition hover:shadow-card;
+}
+
+.post-card__title {
+  @apply line-clamp-1 text-lg font-semibold text-brand-800;
+}
+
+.post-card__body {
+  @apply mt-2 line-clamp-2 text-sm text-gray-600;
+}
+
+.post-card__meta {
+  @apply mt-3 text-xs text-gray-500;
+}
