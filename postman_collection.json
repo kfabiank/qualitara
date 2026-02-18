@@ -1,0 +1,143 @@
+{
+  "info": {
+    "name": "Staff Backend API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "Get All Posts",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/posts",
+          "host": ["{{base_url}}"],
+          "path": ["api", "posts"]
+        }
+      }
+    },
+    {
+      "name": "Get Post by ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/posts/1",
+          "host": ["{{base_url}}"],
+          "path": ["api", "posts", "1"]
+        }
+      }
+    },
+    {
+      "name": "Get Post Comments",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/posts/1/comments",
+          "host": ["{{base_url}}"],
+          "path": ["api", "posts", "1", "comments"]
+        }
+      }
+    },
+    {
+      "name": "Create Post",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"My new post\",\n  \"body\": \"This is the post body.\",\n  \"userId\": 1\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/posts",
+          "host": ["{{base_url}}"],
+          "path": ["api", "posts"]
+        }
+      }
+    },
+    {
+      "name": "Patch Post",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Updated title\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/posts/1",
+          "host": ["{{base_url}}"],
+          "path": ["api", "posts", "1"]
+        }
+      }
+    },
+    {
+      "name": "Error - Invalid ID (string)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/posts/abc",
+          "host": ["{{base_url}}"],
+          "path": ["api", "posts", "abc"]
+        }
+      }
+    },
+    {
+      "name": "Error - Invalid ID (negative)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/posts/-1",
+          "host": ["{{base_url}}"],
+          "path": ["api", "posts", "-1"]
+        }
+      }
+    },
+    {
+      "name": "Error - Invalid body (POST)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": 123\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/posts",
+          "host": ["{{base_url}}"],
+          "path": ["api", "posts"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:4000"
+    }
+  ]
+}

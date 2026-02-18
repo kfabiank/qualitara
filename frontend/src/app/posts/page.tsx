@@ -1,5 +1,5 @@
 import { getPosts } from "@/lib/api";
-import { PostCard } from "@/components/PostCard";
+import { PostsList } from "@/components/PostsList";
 
 export const dynamic = "force-dynamic";
 
@@ -12,12 +12,7 @@ export default async function PostsPage() {
       <p className="mt-1 text-sm text-gray-600">
         Server-rendered list from the Node backend.
       </p>
-
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {posts.slice(0, 30).map((p) => (
-          <PostCard key={p.id} post={p} />
-        ))}
-      </div>
+      <PostsList initialPosts={posts} />
     </main>
   );
 }

@@ -18,8 +18,18 @@ const CommentSchema = z.object({
   body: z.string()
 });
 
+const CreatePostSchema = z.object({
+  title: z.string(),
+  body: z.string(),
+  userId: z.number(),
+});
+
+const PatchPostSchema = CreatePostSchema.partial();
+
 export type Post = z.infer<typeof PostSchema>;
 export type Comment = z.infer<typeof CommentSchema>;
+export type CreatePostInput = z.infer<typeof CreatePostSchema>;
+export type PatchPostInput = z.infer<typeof PatchPostSchema>;
 
 export async function fetchPosts(): Promise<Post[]> {
   const { data } = await axios.get(`${BASE_URL}/posts`, { timeout: 10_000 });
@@ -34,4 +44,14 @@ export async function fetchPost(id: number): Promise<Post> {
 export async function fetchPostComments(id: number): Promise<Comment[]> {
   const { data } = await axios.get(`${BASE_URL}/posts/${id}/comments`, { timeout: 10_000 });
   return z.array(CommentSchema).parse(data);
+}
+
+export async function createPost(input: CreatePostInput): Promise<Post> {
+  const { data } = await axios.post(`${BASE_URL}/posts`, input, { timeout: 10_000 });
+  return PostSchema.parse(data);
+}
+
+export async function patchPost(id: number, input: PatchPostInput): Promise<Post> {
+  const { data } = await axios.patch(`${BASE_URL}/posts/${id}`, input, { timeout: 10_000 });
+  return PostSchema.parse(data);
 }
