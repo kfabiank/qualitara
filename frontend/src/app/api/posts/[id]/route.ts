@@ -4,7 +4,7 @@ import { z } from "zod";
 const BACKEND_BASE =
   process.env.BACKEND_API_BASE ||
   process.env.NEXT_PUBLIC_API_BASE ||
-  "http://localhost:4000";
+  null;
 
 const PostSchema = z.object({
   userId: z.number(),
@@ -29,12 +29,13 @@ export async function GET(
   }
 
   try {
-    const res = await fetch(`${BACKEND_BASE}/api/posts/${id}`, {
-      next: { revalidate: 0 },
-    });
+    const url = BACKEND_BASE
+      ? `${BACKEND_BASE}/api/posts/${id}`
+      : `https://jsonplaceholder.typicode.com/posts/${id}`;
+    const res = await fetch(url, { next: { revalidate: 0 } });
     if (!res.ok) throw new Error("Upstream error");
-    const data = (await res.json()) as { post: unknown };
-    const post = PostSchema.parse(data.post);
+    const raw = await res.json();
+    const post = PostSchema.parse(BACKEND_BASE ? (raw as { post: unknown }).post : raw);
     return NextResponse.json({ post });
   } catch {
     return NextResponse.json({ error: "Failed to fetch post" }, { status: 500 });
@@ -56,14 +57,17 @@ export async function PATCH(
   }
 
   try {
-    const res = await fetch(`${BACKEND_BASE}/api/posts/${id}`, {
+    const url = BACKEND_BASE
+      ? `${BACKEND_BASE}/api/posts/${id}`
+      : `https://jsonplaceholder.typicode.com/posts/${id}`;
+    const res = await fetch(url, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(parsed.data),
     });
     if (!res.ok) throw new Error("Upstream error");
-    const data = (await res.json()) as { post: unknown };
-    const post = PostSchema.parse(data.post);
+    const raw = await res.json();
+    const post = PostSchema.parse(BACKEND_BASE ? (raw as { post: unknown }).post : raw);
     return NextResponse.json({ post });
   } catch {
     return NextResponse.json({ error: "Failed to update post" }, { status: 500 });

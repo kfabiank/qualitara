@@ -4,7 +4,7 @@ import { z } from "zod";
 const BACKEND_BASE =
   process.env.BACKEND_API_BASE ||
   process.env.NEXT_PUBLIC_API_BASE ||
-  "http://localhost:4000";
+  null;
 
 const CommentSchema = z.object({
   postId: z.number(),
@@ -24,12 +24,15 @@ export async function GET(
   }
 
   try {
-    const res = await fetch(`${BACKEND_BASE}/api/posts/${id}/comments`, {
-      next: { revalidate: 0 },
-    });
+    const url = BACKEND_BASE
+      ? `${BACKEND_BASE}/api/posts/${id}/comments`
+      : `https://jsonplaceholder.typicode.com/posts/${id}/comments`;
+    const res = await fetch(url, { next: { revalidate: 0 } });
     if (!res.ok) throw new Error("Upstream error");
-    const data = (await res.json()) as { comments: unknown };
-    const comments = z.array(CommentSchema).parse(data.comments);
+    const raw = await res.json();
+    const comments = z.array(CommentSchema).parse(
+      BACKEND_BASE ? (raw as { comments: unknown }).comments : raw
+    );
     return NextResponse.json({ comments });
   } catch {
     return NextResponse.json({ error: "Failed to fetch comments" }, { status: 500 });

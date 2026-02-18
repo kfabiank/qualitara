@@ -4,7 +4,7 @@ import { z } from "zod";
 const BACKEND_BASE =
   process.env.BACKEND_API_BASE ||
   process.env.NEXT_PUBLIC_API_BASE ||
-  "http://localhost:4000";
+  null;
 
 const PostSchema = z.object({
   userId: z.number(),
@@ -21,12 +21,17 @@ const CreatePostSchema = z.object({
 
 export async function GET() {
   try {
-    const res = await fetch(`${BACKEND_BASE}/api/posts`, {
-      next: { revalidate: 0 },
-    });
-    if (!res.ok) throw new Error("Upstream error");
-    const data = (await res.json()) as { posts: unknown };
-    const posts = z.array(PostSchema).parse(data.posts);
+    let posts;
+    if (BACKEND_BASE) {
+      const res = await fetch(`${BACKEND_BASE}/api/posts`, { next: { revalidate: 0 } });
+      if (!res.ok) throw new Error("Upstream error");
+      const data = (await res.json()) as { posts: unknown };
+      posts = z.array(PostSchema).parse(data.posts);
+    } else {
+      const res = await fetch("https://jsonplaceholder.typicode.com/posts", { next: { revalidate: 0 } });
+      if (!res.ok) throw new Error("Upstream error");
+      posts = z.array(PostSchema).parse(await res.json());
+    }
     return NextResponse.json({ posts });
   } catch {
     return NextResponse.json({ error: "Failed to fetch posts" }, { status: 500 });
@@ -40,14 +45,17 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const res = await fetch(`${BACKEND_BASE}/api/posts`, {
+    const url = BACKEND_BASE
+      ? `${BACKEND_BASE}/api/posts`
+      : "https://jsonplaceholder.typicode.com/posts";
+    const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(parsed.data),
     });
     if (!res.ok) throw new Error("Upstream error");
-    const data = (await res.json()) as { post: unknown };
-    const post = PostSchema.parse(data.post);
+    const raw = await res.json();
+    const post = PostSchema.parse(BACKEND_BASE ? (raw as { post: unknown }).post : raw);
     return NextResponse.json({ post }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Failed to create post" }, { status: 500 });
