@@ -1,35 +1,67 @@
 import type { Comment, Post } from "@/types/jsonplaceholder";
 
-function getApiUrl(path: string): string {
-  if (typeof window !== "undefined") return path;
-  const vercelUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null;
-  const base =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    vercelUrl ||
-    "http://localhost:3000";
-  return `${base}${path}`;
+// Server-side: call the upstream directly (backend or JSONPlaceholder).
+// Client-side: call the Next.js API routes (relative URLs).
+const UPSTREAM =
+  process.env.BACKEND_API_BASE ||
+  process.env.NEXT_PUBLIC_API_BASE ||
+  "https://jsonplaceholder.typicode.com";
+
+function serverUrl(path: string): string {
+  // path is like "/posts" or "/posts/1/comments"
+  if (UPSTREAM.includes("jsonplaceholder")) {
+    return `${UPSTREAM}${path}`;
+  }
+  return `${UPSTREAM}/api${path}`;
+}
+
+async function parseServerPost(res: Response): Promise<Post> {
+  const raw = await res.json();
+  // Backend wraps in { post }, JSONPlaceholder returns the object directly
+  return (raw as { post?: Post }).post ?? (raw as Post);
+}
+
+async function parseServerPosts(res: Response): Promise<Post[]> {
+  const raw = await res.json();
+  return (raw as { posts?: Post[] }).posts ?? (raw as Post[]);
+}
+
+async function parseServerComments(res: Response): Promise<Comment[]> {
+  const raw = await res.json();
+  return (raw as { comments?: Comment[] }).comments ?? (raw as Comment[]);
 }
 
 export async function getPosts(): Promise<Post[]> {
-  const res = await fetch(getApiUrl("/api/posts"), { cache: "no-store" });
+  if (typeof window !== "undefined") {
+    const res = await fetch("/api/posts", { cache: "no-store" });
+    if (!res.ok) throw new Error("Failed to load posts");
+    return ((await res.json()) as { posts: Post[] }).posts;
+  }
+  const res = await fetch(serverUrl("/posts"), { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load posts");
-  const data = (await res.json()) as { posts: Post[] };
-  return data.posts;
+  return parseServerPosts(res);
 }
 
 export async function getPost(id: number): Promise<Post> {
-  const res = await fetch(getApiUrl(`/api/posts/${id}`), { cache: "no-store" });
+  if (typeof window !== "undefined") {
+    const res = await fetch(`/api/posts/${id}`, { cache: "no-store" });
+    if (!res.ok) throw new Error("Failed to load post");
+    return ((await res.json()) as { post: Post }).post;
+  }
+  const res = await fetch(serverUrl(`/posts/${id}`), { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load post");
-  const data = (await res.json()) as { post: Post };
-  return data.post;
+  return parseServerPost(res);
 }
 
 export async function getPostComments(id: number): Promise<Comment[]> {
-  const res = await fetch(getApiUrl(`/api/posts/${id}/comments`), { cache: "no-store" });
+  if (typeof window !== "undefined") {
+    const res = await fetch(`/api/posts/${id}/comments`, { cache: "no-store" });
+    if (!res.ok) throw new Error("Failed to load comments");
+    return ((await res.json()) as { comments: Comment[] }).comments;
+  }
+  const res = await fetch(serverUrl(`/posts/${id}/comments`), { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load comments");
-  const data = (await res.json()) as { comments: Comment[] };
-  return data.comments;
+  return parseServerComments(res);
 }
 
 export async function createPost(input: {
@@ -37,26 +69,24 @@ export async function createPost(input: {
   body: string;
   userId: number;
 }): Promise<Post> {
-  const res = await fetch(getApiUrl("/api/posts"), {
+  const res = await fetch("/api/posts", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
   if (!res.ok) throw new Error("Failed to create post");
-  const data = (await res.json()) as { post: Post };
-  return data.post;
+  return ((await res.json()) as { post: Post }).post;
 }
 
 export async function patchPost(
   id: number,
   input: Partial<{ title: string; body: string; userId: number }>
 ): Promise<Post> {
-  const res = await fetch(getApiUrl(`/api/posts/${id}`), {
+  const res = await fetch(`/api/posts/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
   if (!res.ok) throw new Error("Failed to update post");
-  const data = (await res.json()) as { post: Post };
-  return data.post;
+  return ((await res.json()) as { post: Post }).post;
 }
