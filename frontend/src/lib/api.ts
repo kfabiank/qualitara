@@ -2,9 +2,11 @@ import type { Comment, Post } from "@/types/jsonplaceholder";
 
 function getApiUrl(path: string): string {
   if (typeof window !== "undefined") return path;
+  const vercelUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null;
   const base =
     process.env.NEXT_PUBLIC_APP_URL ||
     process.env.NEXT_PUBLIC_SITE_URL ||
+    vercelUrl ||
     "http://localhost:3000";
   return `${base}${path}`;
 }
