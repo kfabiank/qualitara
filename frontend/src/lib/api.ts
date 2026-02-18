@@ -1,8 +1,12 @@
 import type { Comment, Post } from "@/types/jsonplaceholder";
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE ||
-  (process.env.NODE_ENV === "production" ? "" : "http://localhost:4000");
+function getApiBase(): string {
+  if (process.env.NEXT_PUBLIC_API_BASE) return process.env.NEXT_PUBLIC_API_BASE;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return "http://localhost:4000";
+}
+
+const API_BASE = getApiBase();
 
 export async function getPosts(): Promise<Post[]> {
   const res = await fetch(`${API_BASE}/api/posts`, { cache: "no-store" });
