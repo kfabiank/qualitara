@@ -1,7 +1,8 @@
 import type { Comment, Post } from "@/types/jsonplaceholder";
 
-const DEFAULT_BASE = "http://localhost:4000";
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || DEFAULT_BASE;
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE ||
+  (process.env.NODE_ENV === "production" ? "" : "http://localhost:4000");
 
 export async function getPosts(): Promise<Post[]> {
   const res = await fetch(`${API_BASE}/api/posts`, { cache: "no-store" });
