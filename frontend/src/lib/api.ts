@@ -5,30 +5,26 @@ import type { Comment, Post } from "@/types/jsonplaceholder";
 const UPSTREAM =
   process.env.BACKEND_API_BASE ||
   process.env.NEXT_PUBLIC_API_BASE ||
-  "https://jsonplaceholder.typicode.com";
+  null;
 
 function serverUrl(path: string): string {
-  // path is like "/posts" or "/posts/1/comments"
-  if (UPSTREAM.includes("jsonplaceholder")) {
-    return `${UPSTREAM}${path}`;
-  }
-  return `${UPSTREAM}/api${path}`;
+  if (UPSTREAM) return `${UPSTREAM}/api${path}`;
+  return `https://jsonplaceholder.typicode.com${path}`;
 }
 
 async function parseServerPost(res: Response): Promise<Post> {
   const raw = await res.json();
-  // Backend wraps in { post }, JSONPlaceholder returns the object directly
-  return (raw as { post?: Post }).post ?? (raw as Post);
+  return UPSTREAM ? (raw as { post: Post }).post : (raw as Post);
 }
 
 async function parseServerPosts(res: Response): Promise<Post[]> {
   const raw = await res.json();
-  return (raw as { posts?: Post[] }).posts ?? (raw as Post[]);
+  return UPSTREAM ? (raw as { posts: Post[] }).posts : (raw as Post[]);
 }
 
 async function parseServerComments(res: Response): Promise<Comment[]> {
   const raw = await res.json();
-  return (raw as { comments?: Comment[] }).comments ?? (raw as Comment[]);
+  return UPSTREAM ? (raw as { comments: Comment[] }).comments : (raw as Comment[]);
 }
 
 export async function getPosts(): Promise<Post[]> {

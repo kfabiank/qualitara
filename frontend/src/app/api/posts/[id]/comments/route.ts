@@ -30,9 +30,7 @@ export async function GET(
     const res = await fetch(url, { next: { revalidate: 0 } });
     if (!res.ok) throw new Error("Upstream error");
     const raw = await res.json();
-    const comments = z.array(CommentSchema).parse(
-      BACKEND_BASE ? (raw as { comments: unknown }).comments : raw
-    );
+    const comments = z.array(CommentSchema).parse(BACKEND_BASE ? (raw as { comments: unknown }).comments : raw);
     return NextResponse.json({ comments });
   } catch {
     return NextResponse.json({ error: "Failed to fetch comments" }, { status: 500 });

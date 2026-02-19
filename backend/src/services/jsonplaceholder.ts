@@ -1,7 +1,7 @@
 import axios from "axios";
 import { z } from "zod";
 
-const BASE_URL = "https://jsonplaceholder.typicode.com";
+const BASE_URL = process.env.JSONPLACEHOLDER_BASE_URL || "https://jsonplaceholder.typicode.com";
 
 const PostSchema = z.object({
   userId: z.number(),
