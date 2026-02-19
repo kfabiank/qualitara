@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getPosts } from "@/lib/api";
 import { PostsList } from "@/components/PostsList";
 import type { Post } from "@/types/jsonplaceholder";
@@ -20,6 +21,20 @@ export default async function PostsPage() {
       <p className="mt-1 text-sm text-gray-600">
         Server-rendered list from the Node backend.
       </p>
+      <div className="mt-4 flex flex-wrap gap-2 text-sm">
+        <Link className="rounded border px-3 py-1.5 hover:bg-gray-50" href="/posts/paginated">
+          Paginated demo
+        </Link>
+        <Link className="rounded border px-3 py-1.5 hover:bg-gray-50" href="/posts/search">
+          Search demo
+        </Link>
+        <Link className="rounded border px-3 py-1.5 hover:bg-gray-50" href="/posts/users/1">
+          User posts demo
+        </Link>
+        <Link className="rounded border px-3 py-1.5 hover:bg-gray-50" href="/posts/n-plus-1">
+          N+1 demo
+        </Link>
+      </div>
       {loadError ? (
         <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
           Failed to load posts. Verify backend is running on <code>http://localhost:4000</code> and refresh.

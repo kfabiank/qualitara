@@ -55,3 +55,22 @@ export async function patchPost(id: number, input: PatchPostInput): Promise<Post
   const { data } = await axios.patch(`${BASE_URL}/posts/${id}`, input, { timeout: 10_000 });
   return PostSchema.parse(data);
 }
+
+export async function putPost(id: number, input: CreatePostInput): Promise<Post> {
+  const { data } = await axios.put(`${BASE_URL}/posts/${id}`, input, { timeout: 10_000 });
+  return PostSchema.parse(data);
+}
+
+export async function deletePost(id: number): Promise<void> {
+  await axios.delete(`${BASE_URL}/posts/${id}`, { timeout: 10_000 });
+}
+
+export async function fetchUserPosts(userId: number): Promise<Post[]> {
+  const { data } = await axios.get(`${BASE_URL}/users/${userId}/posts`, { timeout: 10_000 });
+  return z.array(PostSchema).parse(data);
+}
+
+export async function fetchAllComments(): Promise<Comment[]> {
+  const { data } = await axios.get(`${BASE_URL}/comments`, { timeout: 10_000 });
+  return z.array(CommentSchema).parse(data);
+}

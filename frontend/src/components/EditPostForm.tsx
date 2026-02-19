@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { patchPost } from "@/lib/api";
+import { patchPost, putPost } from "@/lib/api";
 import type { Post } from "@/types/jsonplaceholder";
 
 export function EditPostForm({ post, onUpdated }: { post: Post; onUpdated: (post: Post) => void }) {
@@ -21,6 +21,20 @@ export function EditPostForm({ post, onUpdated }: { post: Post; onUpdated: (post
       setOpen(false);
     } catch {
       setError("Failed to update post. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleReplace() {
+    setLoading(true);
+    setError(null);
+    try {
+      const replaced = await putPost(post.id, { title, body, userId: post.userId });
+      onUpdated(replaced);
+      setOpen(false);
+    } catch {
+      setError("Failed to replace post. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -64,6 +78,14 @@ export function EditPostForm({ post, onUpdated }: { post: Post; onUpdated: (post
           className="rounded-lg bg-black text-white px-4 py-2 text-sm disabled:opacity-50 hover:bg-gray-800 transition"
         >
           {loading ? "Saving…" : "Save"}
+        </button>
+        <button
+          type="button"
+          disabled={loading}
+          onClick={handleReplace}
+          className="rounded-lg border px-4 py-2 text-sm hover:bg-gray-100 disabled:opacity-50 transition"
+        >
+          Replace (PUT)
         </button>
         <button
           type="button"
